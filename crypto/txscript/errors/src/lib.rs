@@ -2,6 +2,12 @@ use thiserror::Error;
 
 #[derive(Error, PartialEq, Eq, Debug, Clone)]
 pub enum TxScriptError {
+    #[error("{error:?}. Debug info: opCodePos = {opCodePos:?}.")]
+    DebugInfoError {
+        error: TxScriptError,
+        opCodePos: i32,
+        info: String,
+    }
     #[error("invalid opcode length: {0:02x?}")]
     MalformedPushSize(Vec<u8>),
     #[error("opcode requires {0} bytes, but script only has {1} remaining")]
