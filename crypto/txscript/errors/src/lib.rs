@@ -7,7 +7,7 @@ pub enum TxScriptError {
         error: TxScriptError,
         opCodePos: i32,
         info: String,
-    }
+    },
     #[error("invalid opcode length: {0:02x?}")]
     MalformedPushSize(Vec<u8>),
     #[error("opcode requires {0} bytes, but script only has {1} remaining")]
