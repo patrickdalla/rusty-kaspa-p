@@ -256,6 +256,7 @@ impl<'a, T: VerifiableTransaction, Reused: SigHashReusedValues> TxScriptEngine<'
     }
 
     fn execute_script(&mut self, script: &[u8], verify_only_push: bool) -> Result<(), TxScriptError> {
+        let successfullOpCodeExecutionCount = 0;
         let script_result = parse_script(script).try_for_each(|opcode| {
             let opcode = opcode?;
             if opcode.is_disabled() {
@@ -270,7 +271,15 @@ impl<'a, T: VerifiableTransaction, Reused: SigHashReusedValues> TxScriptEngine<'
                 return Err(TxScriptError::SignatureScriptNotPushOnly);
             }
 
-            self.execute_opcode(opcode)?;
+            match self.execute_opcode(opcode) {
+                On()=>{successfullOpCodeExecutionCount++},
+                Err(e)=>{
+                    let de = Err(TxScriptError::DebugInfoError);
+                    de.opCodePos = successfullOpCodeExecutionCount+1;
+                    de.error = e;
+                    return de;
+                };
+            }
 
             let combined_size = self.astack.len() + self.dstack.len();
             if combined_size > MAX_STACK_SIZE {
